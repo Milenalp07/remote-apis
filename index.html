@@ -8,30 +8,39 @@
 
 body{
 font-family:Arial;
-background:#f4f4f4;
+background:#0f172a;
+color:white;
 text-align:center;
 }
 
 button,input,select{
 padding:10px;
 margin:10px;
+border-radius:5px;
+border:none;
+}
+
+button{
+background:#38bdf8;
+cursor:pointer;
 }
 
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:15px;
-margin-top:20px;
+gap:20px;
+margin-top:30px;
 }
 
 .card{
-background:white;
+background:#1e293b;
 padding:15px;
-border-radius:8px;
+border-radius:10px;
 }
 
 img{
 width:100%;
+border-radius:5px;
 }
 
 </style>
@@ -52,6 +61,7 @@ width:100%;
 <option value="asia">Asia</option>
 <option value="africa">Africa</option>
 <option value="americas">Americas</option>
+<option value="oceania">Oceania</option>
 </select>
 
 <input id="characterSearch" placeholder="Search character">
@@ -62,6 +72,7 @@ width:100%;
 
 const results=document.getElementById("results");
 
+// Countries API
 async function fetchCountries(){
 
 const region=document.getElementById("regionSelect").value;
@@ -69,6 +80,11 @@ const region=document.getElementById("regionSelect").value;
 try{
 
 const response=await fetch(`https://restcountries.com/v3.1/region/${region}`);
+
+if(!response.ok){
+throw new Error("API error");
+}
+
 const data=await response.json();
 
 results.innerHTML="";
@@ -82,7 +98,8 @@ card.className="card";
 card.innerHTML=`
 <img src="${country.flags.png}">
 <h3>${country.name.common}</h3>
-<p>Capital: ${country.capital}</p>
+<p>Capital: ${country.capital ? country.capital[0] : "N/A"}</p>
+<p>Population: ${country.population}</p>
 `;
 
 results.appendChild(card);
@@ -91,15 +108,23 @@ results.appendChild(card);
 
 }catch(error){
 
-results.innerHTML="Error loading countries";
+results.innerHTML="<p>Error loading countries</p>";
 
 }
 
 }
 
+// Users API
 async function fetchUsers(){
 
+try{
+
 const response=await fetch("https://jsonplaceholder.typicode.com/users");
+
+if(!response.ok){
+throw new Error("API error");
+}
+
 const users=await response.json();
 
 results.innerHTML="";
@@ -112,15 +137,24 @@ card.className="card";
 
 card.innerHTML=`
 <h3>${user.name}</h3>
-<p>${user.email}</p>
+<p>Email: ${user.email}</p>
+<p>Phone: ${user.phone}</p>
+<p>Company: ${user.company.name}</p>
 `;
 
 results.appendChild(card);
 
 });
 
+}catch(error){
+
+results.innerHTML="<p>Error loading users</p>";
+
 }
 
+}
+
+// Rick & Morty API
 async function fetchCharacters(){
 
 const name=document.getElementById("characterSearch").value;
@@ -134,6 +168,11 @@ url+=`/?name=${name}`;
 try{
 
 const response=await fetch(url);
+
+if(!response.ok){
+throw new Error("Character not found");
+}
+
 const data=await response.json();
 
 results.innerHTML="";
@@ -147,7 +186,8 @@ card.className="card";
 card.innerHTML=`
 <img src="${character.image}">
 <h3>${character.name}</h3>
-<p>${character.status}</p>
+<p>Status: ${character.status}</p>
+<p>Species: ${character.species}</p>
 `;
 
 results.appendChild(card);
@@ -156,7 +196,7 @@ results.appendChild(card);
 
 }catch(error){
 
-results.innerHTML="Character not found";
+results.innerHTML="<p>Character not found</p>";
 
 }
 
